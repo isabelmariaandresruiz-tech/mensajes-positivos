@@ -1,0 +1,22 @@
+:root {
+  --color-primary: #e65c2f;
+  --color-primary-strong: #bf431e;
+  --color-secondary: #ff9b54;
+  --color-ink: #1f1f25;
+  --color-ink-soft: #535468;
+  --color-soft: #fff7ee;
+  --color-card: #ffffff;
+  --color-border: #f3d8c2;
+  --color-success: #11855c;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow-card: 0 16px 40px rgba(230, 92, 47, 0.12);
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+}
