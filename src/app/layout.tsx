@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s | AnimoCerca",
   },
   applicationName: "AnimoCerca",
-  description: "Mensajes positivos, felicitaciones y apoyo para tu gente.",
+  description: "Mensajes positivos pensados para usarse desde el telefono, con instalacion opcional tipo app.",
   manifest: "/manifest.webmanifest",
   formatDetection: {
     telephone: false,

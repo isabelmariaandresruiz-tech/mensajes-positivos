@@ -105,22 +105,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const now = new Date();
-    let status: MessageStatus = MessageStatus.SENT;
-    let sentAt: Date | null = now;
-    let scheduledFor: Date | null = null;
-
     if (parsed.data.scheduledFor) {
-      const candidateDate = new Date(parsed.data.scheduledFor);
-      if (Number.isNaN(candidateDate.getTime())) {
-        return NextResponse.json({ error: "Fecha de programacion no valida." }, { status: 400 });
-      }
-
-      if (candidateDate > now) {
-        status = MessageStatus.SCHEDULED;
-        sentAt = null;
-        scheduledFor = candidateDate;
-      }
+      return NextResponse.json(
+        { error: "La programacion de mensajes no esta disponible por ahora." },
+        { status: 400 },
+      );
     }
 
     const created = await prisma.$transaction(async (tx) => {
@@ -131,9 +120,8 @@ export async function POST(request: Request) {
           templateId: parsed.data.templateId,
           inReplyToId: parsed.data.inReplyToId,
           body: parsed.data.body,
-          status,
-          sentAt,
-          scheduledFor,
+          status: MessageStatus.SENT,
+          sentAt: new Date(),
         },
       });
 
@@ -141,7 +129,7 @@ export async function POST(request: Request) {
         data: {
           messageId: message.id,
           channel: "IN_APP",
-          status: status === MessageStatus.SCHEDULED ? DeliveryStatus.QUEUED : DeliveryStatus.SENT,
+          status: DeliveryStatus.SENT,
         },
       });
 

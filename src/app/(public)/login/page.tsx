@@ -19,11 +19,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <p className="auth-subtitle">
           Entra para enviar mensajes positivos, felicitaciones y apoyo a tu gente.
         </p>
+        <p className="message-meta">Pensada para usarla desde el navegador del telefono, sin pasos extra.</p>
         <AuthForm mode="login" returnTo={params.returnTo} />
 
         <div className="mobile-install-card">
-          <p className="mobile-install-title">Pruebas en movil (iOS y Android)</p>
-          <p className="install-helper">Puedes instalar la app ahora para probarla como app nativa.</p>
+          <p className="mobile-install-title">Llevala a la pantalla principal</p>
+          <p className="install-helper">
+            Si la instalas, se abre como una app ligera y queda mas a mano en el telefono.
+          </p>
           <InstallAppButton />
         </div>
       </article>

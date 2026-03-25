@@ -39,6 +39,7 @@ export function AuthForm({ mode, returnTo }: AuthFormProps) {
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
       password: String(formData.get("password") || ""),
+      phone: String(formData.get("phone") || ""),
       country: String(formData.get("country") || ""),
       city: String(formData.get("city") || ""),
     };
@@ -63,7 +64,11 @@ export function AuthForm({ mode, returnTo }: AuthFormProps) {
       router.push(safeReturnTo);
       router.refresh();
     } catch {
-      setError("No se pudo conectar con el servidor. Intentalo de nuevo.");
+      setError(
+        isRegister
+          ? "No se pudo crear la cuenta. Intentalo de nuevo."
+          : "No se pudo iniciar sesion. Intentalo de nuevo.",
+      );
       setLoading(false);
     }
   };
@@ -96,6 +101,11 @@ export function AuthForm({ mode, returnTo }: AuthFormProps) {
 
       {isRegister ? (
         <div className="location-fields-grid">
+          <label className="label" htmlFor="phone">
+            Telefono (opcional)
+            <input className="input" id="phone" name="phone" placeholder="Ej: +34 600 111 222" type="tel" />
+          </label>
+
           <label className="label" htmlFor="country">
             Pais (opcional)
             <input className="input" id="country" name="country" placeholder="Ej: Espana" type="text" />

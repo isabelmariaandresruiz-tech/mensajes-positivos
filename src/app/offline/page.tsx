@@ -11,19 +11,19 @@ export default function OfflinePage() {
       <article className="card auth-card">
         <h1 className="auth-title">Sin conexion</h1>
         <p className="auth-subtitle">
-          No hay internet en este momento. Revisa tu conexion y vuelve a intentarlo.
+          No hay internet en este momento. Revisa tu conexion y vuelve a intentarlo desde el telefono.
         </p>
 
         <div className="mobile-install-card">
-          <p className="mobile-install-title">Modo movil</p>
+          <p className="mobile-install-title">Cuando vuelvas a tener conexion</p>
           <p className="install-helper">
-            Si instalas la app en la pantalla principal, la experiencia en iOS y Android es mas fluida.
+            Instalarla en el telefono ayuda a abrirla mas rapido y a tener una experiencia mas parecida a app.
           </p>
           <InstallAppButton />
         </div>
 
         <Link className="button button-primary" href="/login">
-          Ir a login
+          Volver a intentar
         </Link>
       </article>
     </section>

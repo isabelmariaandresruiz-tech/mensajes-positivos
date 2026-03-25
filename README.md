@@ -1,101 +1,117 @@
-﻿# AnimoCerca (MVP Fase 1)
+# AnimoCerca
 
-Aplicacion web instalable (PWA) para enviar mensajes positivos, felicitaciones y apoyo.
+Aplicacion mobile-first para enviar mensajes positivos, felicitaciones y apoyo emocional desde el telefono. El proyecto vive en un unico repo Next.js con backend y frontend juntos, y hoy soporta dos formas de uso en movil: navegador normal y PWA instalada en la pantalla principal.
 
-## Novedades implementadas
-- Busqueda de personas por nombre, email o `@username`.
-- Importacion de contactos del telefono (cuando el navegador lo permite).
-- Bandejas separadas de mensajes **recibidos** y **enviados**.
-- Biblioteca de plantillas positivas y de refuerzo emocional basada en mindfulness, clasificada por categorias.
-- Medidor de felicidad con ranking: suma por impacto real (personas distintas + respuestas) y penaliza spam/repeticion.
-- Ranking por ambitos: global, por pais y por ciudad.
+## Estado actual del producto
+- Registro y login por email y contrasena.
+- Campo `phone` opcional en registro para mejorar el matching con contactos.
+- Envio de mensajes solo inmediato. La programacion esta desactivada en UI y API.
+- Bandeja de recibidos y enviados.
+- Los mensajes pasan a `READ` al abrir la bandeja de recibidos.
+- Plantillas positivas por categoria.
+- Importacion de contactos del telefono cuando el navegador lo permite.
+- Enlaces publicos por usuario (`/u/[username]`) e invitaciones por token (`/i/[token]`).
+- Respuesta por token con `replyTo` preservado.
+- Medidor de felicidad y ranking global, por pais y por ciudad.
+- Flujo principal optimizado para telefono.
+- Instalacion PWA disponible cuando abres la app con HTTPS o en `localhost`.
 
 ## Stack
-- Next.js 16 + TypeScript
-- Prisma + SQLite local (cero coste)
-- Auth por email/contrasena con cookie de sesion
-- PWA minima (manifest + service worker)
+- Next.js 16 + App Router
+- React 19 + TypeScript
+- Prisma + SQLite local
+- JWT en cookie httpOnly
+- Zod para validacion
+- PWA ligera con `manifest.webmanifest` + `sw.js`
 
-## Configuracion
+## Puesta en marcha local
 1. Instala dependencias:
    - `npm install`
-2. Copia variables de entorno:
+2. Crea variables de entorno:
    - `copy .env.example .env`
-3. Aplica esquema y seed:
+3. Reemplaza `SESSION_SECRET` por un valor largo y aleatorio.
+4. Aplica esquema y datos demo:
    - `npm run db:push`
    - `npm run db:seed`
-4. Inicia app:
-   - `npm run dev -- --hostname 127.0.0.1 --port 3000`
+5. Arranca la app:
+   - `npm run dev -- --hostname 0.0.0.0 --port 3000`
+
+## Variables de entorno
+`.env.example` contiene:
+
+```env
+DATABASE_URL="file:./dev.db"
+SESSION_SECRET="change-me-before-production"
+```
+
+Notas:
+- `SESSION_SECRET` es obligatorio. Si falta, la app falla al firmar o verificar sesiones.
+- En local se usa SQLite. Para produccion real conviene migrar a Postgres o similar.
 
 ## Credenciales demo
-- Usuario 1: `ana@animocerca.local` / `Animo1234` / `@ana`
-- Usuario 2: `luis@animocerca.local` / `Animo1234` / `@luis`
+- `ana@animocerca.local` / `Animo1234` / `@ana`
+- `luis@animocerca.local` / `Animo1234` / `@luis`
 
-## Rutas clave
-- `GET /login`
-- `GET /dashboard`
-- `GET /u/[username]` (enlace compartible para companeros)
-- `GET /messages/new`
-- `GET /messages/inbox?view=received`
-- `GET /messages/inbox?view=sent`
-- `GET /api/users/search?q=`
-- `GET/POST /api/contacts`
-- `GET /api/templates`
-- `POST /api/messages`
-- `GET /api/happiness/me`
-- `GET /api/happiness/leaderboard?scope=global|country|city`
-- `PATCH /api/profile/location`
-
-## Nota sobre contactos del telefono
-Por privacidad del sistema operativo, la lectura de contactos requiere permiso y depende del navegador/dispositivo (normalmente Android + Chrome).
-
-## Regla del medidor de felicidad
-- Suma por mensajes enviados con contenido util y por mensajes leidos.
-- Suma extra por llegar a personas distintas con mensajes suficientemente completos.
-- Suma extra por respuestas recibidas (con limite decreciente por la misma persona).
-- Penaliza volumen diario excesivo, repetir mucho al mismo contacto y copiar el mismo texto en masa.
-
-## Ranking por ubicacion
-- Puedes competir en ranking global, de tu pais y de tu ciudad.
-- Si no tienes pais/ciudad, actualizalos desde Dashboard en la tarjeta de ubicacion local.
-
-## Pruebas en telefonos (iOS y Android)
-1. Prueba funcional rapida en la misma red Wi-Fi:
+## Probar desde el telefono
+### Opcion 1: misma red Wi-Fi
+1. Arranca con `0.0.0.0`:
    - `npm run dev -- --hostname 0.0.0.0 --port 3000`
-   - Abre en el movil: `http://TU_IP_LOCAL:3000`
-2. Prueba PWA real (instalacion) en iOS y Android:
-   - Usa una URL HTTPS (por ejemplo despliegue en Vercel Hobby).
-   - En Android: menu del navegador > "Instalar aplicacion".
-   - En iOS (Safari): Compartir > "Anadir a pantalla de inicio".
-3. Nota tecnica importante:
-   - En HTTP local por IP la app web funciona, pero Service Worker/instalacion PWA puede no estar disponible.
-## Flujo para companeros
-1. Comparte tu enlace publico desde Dashboard (`/u/tuusername`).
-2. Tu companero abre el enlace, instala la app y crea cuenta.
-3. Al pulsar "Instalar y enviar mensaje" entra directo al formulario para enviarte mensaje.
-## Enlace publico temporal (sin coste)
-1. Arrancar enlace HTTPS para compartir:
+2. Averigua la IP local del PC.
+3. Abre en el telefono:
+   - `http://TU_IP_LOCAL:3000`
+
+Esto sirve para validar UX, formularios, navegacion y flujos basicos desde movil. En esta modalidad la app web funcionara, pero la instalacion PWA puede no aparecer porque la URL no es HTTPS.
+
+### Opcion 2: HTTPS publico para compartir o validar instalacion
+1. Arranca el enlace publico:
    - `powershell -ExecutionPolicy Bypass -File scripts/start-public-link.ps1 -Username ana`
-2. Compartir con tu companero:
+2. Revisa la URL activa:
+   - `powershell -ExecutionPolicy Bypass -File scripts/show-public-link.ps1`
+3. Comparte el enlace de companero:
    - `URL_PUBLICA/u/ana`
-3. Tu companero pulsa "Instalar y enviar mensaje", se registra y te escribe.
-4. Para apagarlo:
+4. Apaga el enlace cuando termines:
    - `powershell -ExecutionPolicy Bypass -File scripts/stop-public-link.ps1`
 
-> Nota: este enlace dura mientras tu ordenador siga encendido y los procesos sigan activos.
+Notas:
+- El script levanta `next start` y abre un tunel HTTPS temporal con `localhost.run`.
+- El archivo `public-link.txt` guarda `URL_PUBLICA`, `ENLACE_COMPANERO` y `ENVIO_DIRECTO`.
+- El equipo debe seguir encendido mientras quieras mantener el enlace activo.
 
-## Modo automatico sin cuentas
-1. Instalar arranque automatico (lo levanta al iniciar Windows):
-   - `powershell -ExecutionPolicy Bypass -File scripts/install-autostart-public-link.ps1 -Username ana`
-2. Ver enlace activo en cualquier momento:
-   - `powershell -ExecutionPolicy Bypass -File scripts/show-public-link.ps1`
-   - Tambien queda guardado en `public-link.txt`.
-3. Quitar arranque automatico:
-   - `powershell -ExecutionPolicy Bypass -File scripts/uninstall-autostart-public-link.ps1`
+## Instalar la app en el telefono
+La ruta correcta para validar instalacion es siempre una URL HTTPS publica o `localhost`.
 
-> Este modo no requiere Vercel, GitHub ni cuentas externas. Solo mantener el PC encendido.
+### Android
+1. Abre la app en Chrome o Edge Android.
+2. Pulsa el boton `Instalar app` si aparece, o usa `Como instalar`.
+3. Si no sale prompt, abre el menu del navegador y usa `Instalar aplicacion` o `Anadir a pantalla principal`.
+4. Verifica que abre en modo app y no como pestaña normal.
 
-## Documentacion para programadores
-- Guia tecnica completa: `docs/engineering/guia-tecnica-programadores.md`
-- Checklist E2E actualizada: tests/e2e/checklist.md
+### iPhone / iPad
+1. Abre la app en Safari.
+2. Pulsa `Como instalar` para ver la guia si la necesitas.
+3. Usa `Compartir > Anadir a pantalla de inicio`.
+4. Verifica que el icono queda en la pantalla principal y que la app abre en modo standalone.
 
+## Flujo principal que debe funcionar
+1. Crear cuenta desde `/register`.
+2. Entrar a `/dashboard`.
+3. Compartir `/u/tuusername` o un `inviteUrl`.
+4. Abrir el enlace en el telefono.
+5. Crear cuenta o iniciar sesion.
+6. Enviar mensaje desde `/messages/new`.
+7. Abrir `/messages/inbox?view=received` y comprobar que el mensaje queda como `READ`.
+
+## Scripts utiles
+- `npm run lint`
+- `npm run build`
+- `npm run db:push`
+- `npm run db:seed`
+- `powershell -ExecutionPolicy Bypass -File scripts/start-public-link.ps1 -Username ana`
+- `powershell -ExecutionPolicy Bypass -File scripts/show-public-link.ps1`
+- `powershell -ExecutionPolicy Bypass -File scripts/stop-public-link.ps1`
+
+## Documentacion
+- Guia tecnica: `docs/engineering/guia-tecnica-programadores.md`
+- Mapa completo del repo: `docs/engineering/mapa-completo-repo.md`
+- Diseno y alcance: `docs/design/initial-design.md`
+- Checklist E2E: `tests/e2e/checklist.md`

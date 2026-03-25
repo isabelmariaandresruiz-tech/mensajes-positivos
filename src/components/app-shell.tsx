@@ -25,12 +25,19 @@ export function AppShell({ children, userName, userHandle }: AppShellProps) {
     <div className="app-shell">
       <header className="app-header">
         <div className="container app-header-inner">
-          <div className="brand">
-            <span className="brand-dot">A</span>
-            <span>AnimoCerca</span>
+          <div className="app-header-main">
+            <div className="brand">
+              <span className="brand-dot">A</span>
+              <span>AnimoCerca</span>
+            </div>
+
+            <div className="app-user-chip">
+              <p className="message-meta">Hola, {userName}</p>
+              {userHandle ? <p className="app-user-handle">@{userHandle}</p> : null}
+            </div>
           </div>
 
-          <nav className="nav" aria-label="Navegacion principal">
+          <nav className="nav app-top-nav" aria-label="Navegacion principal">
             {links.map((link) => {
               const isInboxLink = link.href.startsWith("/messages/inbox");
               const isActive =
@@ -49,17 +56,35 @@ export function AppShell({ children, userName, userHandle }: AppShellProps) {
               );
             })}
           </nav>
-
-          <div style={{ textAlign: "right" }}>
-            <p className="message-meta">Hola, {userName}</p>
-            {userHandle ? <p className="message-meta">@{userHandle}</p> : null}
-          </div>
         </div>
       </header>
 
       <main className="app-main">
         <div className="container">{children}</div>
       </main>
+
+      <nav className="app-bottom-nav" aria-label="Navegacion movil">
+        <div className="container app-bottom-nav-inner">
+          {links.map((link) => {
+            const isInboxLink = link.href.startsWith("/messages/inbox");
+            const isActive =
+              isInboxLink
+                ? pathname === "/messages/inbox" && link.href.endsWith(view)
+                : pathname === link.href;
+
+            return (
+              <Link
+                aria-current={isActive ? "page" : undefined}
+                className={`app-bottom-nav-link ${isActive ? "app-bottom-nav-link-active" : ""}`}
+                key={link.href}
+                href={link.href}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

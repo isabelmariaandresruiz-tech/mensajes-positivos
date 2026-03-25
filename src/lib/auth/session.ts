@@ -19,9 +19,13 @@ export type AppSession = {
 };
 
 function getSessionSecret(): Uint8Array {
-  return new TextEncoder().encode(
-    process.env.SESSION_SECRET ?? "dev-only-change-me-before-production",
-  );
+  const secret = process.env.SESSION_SECRET?.trim();
+
+  if (!secret) {
+    throw new Error("SESSION_SECRET is required to sign and verify sessions.");
+  }
+
+  return new TextEncoder().encode(secret);
 }
 
 function mapClaimsToSession(claims: SessionClaims): AppSession | null {

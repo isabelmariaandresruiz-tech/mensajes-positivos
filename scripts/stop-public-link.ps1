@@ -1,4 +1,4 @@
-﻿param(
+param(
   [int]$Port = 3001
 )
 
@@ -9,7 +9,12 @@ Set-Location $root
 
 $targets = @()
 $targets += Get-CimInstance Win32_Process -Filter "name = 'ssh.exe'" |
-  Where-Object { $_.CommandLine -like "*localhost.run*" -and $_.CommandLine -like "*-R 80:127.0.0.1:$Port*" }
+  Where-Object {
+    $_.CommandLine -like "*localhost.run*" -and (
+      $_.CommandLine -like "*-R 80:*:$Port*" -or
+      $_.CommandLine -like "*-R *:80:*:$Port*"
+    )
+  }
 $targets += Get-CimInstance Win32_Process -Filter "name = 'node.exe'" |
   Where-Object {
     $_.CommandLine -like "*next*start*--port $Port*" -or
@@ -36,3 +41,4 @@ if (Test-Path $sharePath) {
 }
 
 Write-Host "Procesos detenidos para puerto $Port."
+

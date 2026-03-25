@@ -51,28 +51,15 @@ type NavigatorWithContacts = Navigator & {
   contacts?: ContactsManager;
 };
 
-type DeliveryMode = "now" | "schedule";
-
 type NewMessageFormProps = {
   initialRecipient?: SearchUser | null;
   initialReplyToId?: string;
 };
 
-function toIsoDate(value: string): string | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return undefined;
-  }
-
-  return parsed.toISOString();
-}
-
 export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessageFormProps) {
-  const [query, setQuery] = useState(initialRecipient?.username ? `@${initialRecipient.username}` : initialRecipient?.name ?? "");
+  const [query, setQuery] = useState(
+    initialRecipient?.username ? `@${initialRecipient.username}` : initialRecipient?.name ?? "",
+  );
   const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
   const [selectedRecipient, setSelectedRecipient] = useState<SearchUser | null>(initialRecipient ?? null);
   const [replyToId, setReplyToId] = useState(initialReplyToId ?? "");
@@ -87,8 +74,6 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
 
   const [bodyText, setBodyText] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("now");
-  const [scheduledFor, setScheduledFor] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -123,7 +108,7 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
           setContacts(contactsResult.items ?? []);
         }
       } catch {
-        // no-op: non-critical data, form still works via user search.
+        // no-op: the form still works with manual search.
       } finally {
         setLoadingContacts(false);
       }
@@ -175,9 +160,7 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
 
     const nav = navigator as NavigatorWithContacts;
     if (!nav.contacts || typeof nav.contacts.select !== "function") {
-      setError(
-        "Tu navegador no permite importar contactos automaticamente. En movil Android con Chrome suele funcionar.",
-      );
+      setError("Tu navegador no permite importar contactos automaticamente.");
       return;
     }
 
@@ -236,13 +219,6 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
       return;
     }
 
-    const scheduledIso = deliveryMode === "schedule" ? toIsoDate(scheduledFor) : undefined;
-
-    if (deliveryMode === "schedule" && !scheduledIso) {
-      setError("Selecciona una fecha y hora validas para programar.");
-      return;
-    }
-
     setLoading(true);
 
     const payload = {
@@ -250,7 +226,6 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
       templateId: selectedTemplateId || undefined,
       inReplyToId: replyToId || undefined,
       body: bodyText.trim(),
-      scheduledFor: scheduledIso,
     };
 
     try {
@@ -271,16 +246,9 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
       }
 
       const inviteText = result.inviteUrl ? ` Enlace: ${result.inviteUrl}` : "";
-      const wasScheduled = result.message?.status === "SCHEDULED";
-      setSuccess(
-        wasScheduled
-          ? `Mensaje programado correctamente.${inviteText}`
-          : `Mensaje enviado correctamente.${inviteText}`,
-      );
+      setSuccess(`Mensaje enviado correctamente.${inviteText}`);
 
       setBodyText("");
-      setScheduledFor("");
-      setDeliveryMode("now");
       setSelectedTemplateId("");
       setReplyToId("");
       setLoading(false);
@@ -344,7 +312,7 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
               >
                 <strong>{user.name}</strong>
                 <span className="message-meta">
-                  {user.username ? `@${user.username} • ` : ""}
+                  {user.username ? `@${user.username} - ` : ""}
                   {user.email}
                 </span>
               </button>
@@ -365,9 +333,7 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
             {importingContacts ? "Importando..." : "Importar contactos"}
           </button>
         </div>
-        <p className="message-meta">
-          Nota: por privacidad del sistema, la importacion automatica depende del navegador y requiere permiso.
-        </p>
+        <p className="message-meta">La importacion automatica depende del navegador y requiere permiso.</p>
         {loadingContacts ? (
           <p className="message-meta">Cargando contactos...</p>
         ) : contacts.length === 0 ? (
@@ -452,50 +418,14 @@ export function NewMessageForm({ initialRecipient, initialReplyToId }: NewMessag
 
       <section className="card" style={{ padding: "1rem", display: "grid", gap: "0.8rem" }}>
         <p style={{ fontWeight: 700 }}>Momento del envio</p>
-
-        <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
-          <button
-            className={`button ${deliveryMode === "now" ? "button-primary" : "button-secondary"}`}
-            onClick={() => {
-              setDeliveryMode("now");
-              setScheduledFor("");
-            }}
-            type="button"
-          >
-            Enviar ahora
-          </button>
-
-          <button
-            className={`button ${deliveryMode === "schedule" ? "button-primary" : "button-secondary"}`}
-            onClick={() => setDeliveryMode("schedule")}
-            type="button"
-          >
-            Programar
-          </button>
-        </div>
-
-        {deliveryMode === "schedule" ? (
-          <label className="label" htmlFor="scheduledFor">
-            Fecha y hora
-            <input
-              className="input"
-              id="scheduledFor"
-              name="scheduledFor"
-              onChange={(event) => setScheduledFor(event.target.value)}
-              type="datetime-local"
-              value={scheduledFor}
-            />
-          </label>
-        ) : (
-          <p className="message-meta">El mensaje se enviara inmediatamente al pulsar el boton.</p>
-        )}
+        <p className="message-meta">El envio es inmediato en esta version de la app.</p>
       </section>
 
       {error ? <p className="alert alert-error">{error}</p> : null}
       {success ? <p className="alert alert-success">{success}</p> : null}
 
       <button className="button button-primary" disabled={loading} type="submit">
-        {loading ? "Guardando..." : deliveryMode === "schedule" ? "Programar mensaje" : "Enviar ahora"}
+        {loading ? "Guardando..." : "Enviar ahora"}
       </button>
     </form>
   );

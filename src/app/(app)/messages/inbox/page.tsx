@@ -1,5 +1,6 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { MessageStatus } from "@prisma/client";
 import { MessageCard } from "@/components/message-card";
 import { getServerSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
@@ -20,12 +21,22 @@ export default async function InboxPage({ searchParams }: InboxPageProps) {
   const params = await searchParams;
   const view = params.view === "sent" ? "sent" : "received";
 
+  await prisma.message.updateMany({
+    where: {
+      recipientId: session.userId,
+      status: MessageStatus.SENT,
+    },
+    data: {
+      status: MessageStatus.READ,
+    },
+  });
+
   const [receivedMessages, sentMessages] = await Promise.all([
     prisma.message.findMany({
       where: {
         recipientId: session.userId,
         status: {
-          in: ["SENT", "READ"],
+          in: [MessageStatus.SENT, MessageStatus.READ],
         },
       },
       include: {
@@ -108,7 +119,7 @@ export default async function InboxPage({ searchParams }: InboxPageProps) {
                   counterpartUsername={message.recipient.username}
                   direction="sent"
                   sentAt={message.sentAt ? message.sentAt.toISOString() : message.createdAt.toISOString()}
-                  status={message.status.toLowerCase()}
+                  status={message.status}
                 />
               ))
             : receivedMessages.map((message) => {
@@ -123,7 +134,7 @@ export default async function InboxPage({ searchParams }: InboxPageProps) {
                     direction="received"
                     replyHref={replyHref}
                     sentAt={message.sentAt ? message.sentAt.toISOString() : message.createdAt.toISOString()}
-                    status={message.status.toLowerCase()}
+                    status={message.status}
                   />
                 );
               })}

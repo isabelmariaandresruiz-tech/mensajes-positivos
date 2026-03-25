@@ -17,11 +17,14 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
       <article className="card auth-card">
         <h1 className="auth-title">Crea tu cuenta</h1>
         <p className="auth-subtitle">Empieza a compartir energia positiva en menos de un minuto.</p>
+        <p className="message-meta">La experiencia esta optimizada para telefono, con pantallas simples y botones grandes.</p>
         <AuthForm mode="register" returnTo={params.returnTo} />
 
         <div className="mobile-install-card">
-          <p className="mobile-install-title">Pruebas en movil (iOS y Android)</p>
-          <p className="install-helper">Tambien puedes instalar la app para probar el flujo completo en telefono.</p>
+          <p className="mobile-install-title">Instalacion opcional</p>
+          <p className="install-helper">
+            Puedes seguir usandola en el navegador o instalarla para abrirla mas rapido desde tu telefono.
+          </p>
           <InstallAppButton />
         </div>
       </article>

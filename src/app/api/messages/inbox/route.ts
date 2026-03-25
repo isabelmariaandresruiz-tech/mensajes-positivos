@@ -1,3 +1,4 @@
+import { MessageStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { getRequestSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
@@ -10,11 +11,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Sesion no valida." }, { status: 401 });
     }
 
+    await prisma.message.updateMany({
+      where: {
+        recipientId: session.userId,
+        status: MessageStatus.SENT,
+      },
+      data: {
+        status: MessageStatus.READ,
+      },
+    });
+
     const inbox = await prisma.message.findMany({
       where: {
         recipientId: session.userId,
         status: {
-          in: ["SENT", "READ"],
+          in: [MessageStatus.SENT, MessageStatus.READ],
         },
       },
       include: {
@@ -22,6 +33,7 @@ export async function GET(request: Request) {
           select: {
             id: true,
             name: true,
+            username: true,
           },
         },
       },

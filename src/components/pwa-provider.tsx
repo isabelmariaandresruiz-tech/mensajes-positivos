@@ -57,7 +57,7 @@ export function PwaProvider() {
           });
         })
         .catch(() => {
-          // No-op: app still works without offline cache.
+          // App still works online even if service worker registration fails.
         });
     }
 

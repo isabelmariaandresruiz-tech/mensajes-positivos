@@ -6,6 +6,12 @@ const optionalLocationField = z
   .max(80, "El valor no puede superar 80 caracteres")
   .optional();
 
+const optionalPhoneField = z
+  .string()
+  .trim()
+  .max(30, "El telefono no puede superar 30 caracteres")
+  .optional();
+
 export const registerSchema = z.object({
   name: z.string().trim().min(2, "El nombre es obligatorio").max(80),
   email: z.string().trim().email("Correo invalido").max(180),
@@ -13,6 +19,7 @@ export const registerSchema = z.object({
     .string()
     .min(8, "La contrasena debe tener al menos 8 caracteres")
     .max(128, "La contrasena no puede superar 128 caracteres"),
+  phone: optionalPhoneField,
   country: optionalLocationField,
   city: optionalLocationField,
 });

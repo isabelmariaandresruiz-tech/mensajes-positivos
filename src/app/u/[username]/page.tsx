@@ -76,8 +76,16 @@ export default async function PublicUserInvitePage({
         <span className="invite-badge">Enlace de companero</span>
         <h1 className="page-title">{targetUser.name} te invita a AnimoCerca</h1>
         <p className="page-subtitle">
-          Instala la app y podras enviarle un mensaje positivo en menos de un minuto.
+          Abre el flujo desde tu movil y podras enviarle un mensaje positivo en menos de un minuto.
         </p>
+
+        <div className="mobile-install-card">
+          <p className="mobile-install-title">Instalar antes de entrar</p>
+          <p className="install-helper">
+            Si quieres, puedes anadir AnimoCerca a la pantalla principal y usar este enlace como app.
+          </p>
+          <InstallAppButton compact />
+        </div>
 
         {!targetUser.allowIncomingMessages ? (
           <p className="alert alert-error">
@@ -88,11 +96,9 @@ export default async function PublicUserInvitePage({
         <div className="invite-actions">
           {targetUser.allowIncomingMessages ? (
             <Link className="button button-primary" href={`/u/${targetUser.username}?open=1`}>
-              {session ? "Enviar mensaje ahora" : "Instalar y enviar mensaje"}
+              {session ? "Enviar mensaje ahora" : "Crear cuenta y enviar mensaje"}
             </Link>
           ) : null}
-
-          <InstallAppButton />
 
           {!session ? (
             <Link className="button button-secondary" href={`/register?returnTo=${encodeURIComponent(`/u/${targetUser.username}?open=1`)}`}>

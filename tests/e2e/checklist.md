@@ -1,49 +1,59 @@
-# Checklist de validacion (Actualizado 2026-03-10)
+# Checklist de validacion (Actualizado 2026-03-25)
 
-## 1) PWA
-- Abrir la app en Chrome/Edge con HTTPS y verificar opcion de instalacion.
-- Instalar y confirmar apertura en modo standalone.
-- Verificar que `/manifest.webmanifest` y `/sw.js` responden 200.
+## 1) Acceso movil
+- Abrir la app en el navegador del telefono y confirmar que carga sin overflow horizontal.
+- Verificar que la cabecera es compacta y que la navegacion inferior queda accesible con el pulgar.
+- Confirmar que los botones principales tienen area tactil amplia.
 
-## 2) Flujo companero por username
-- Abrir `/u/ana` sin sesion y validar landing publica.
-- Abrir `/u/ana?open=1` sin sesion y validar redireccion a `/register?returnTo=...`.
-- Crear cuenta nueva y confirmar redireccion a `/messages/new` con destinatario preseleccionado.
+## 2) Instalacion PWA
+- Abrir la app con HTTPS y verificar que `manifest.webmanifest` responde `200`.
+- Verificar que `sw.js` responde `200`.
+- En Android Chrome, validar que aparece el CTA `Instalar app` o que el navegador ofrece instalar desde el menu.
+- Completar la instalacion y comprobar que la app abre en modo standalone.
+- En iPhone Safari, validar el flujo manual `Compartir > Anadir a pantalla de inicio`.
+
+## 3) Flujo companero por username
+- Abrir `/u/ana` sin sesion y validar la landing publica.
+- Abrir `/u/ana?open=1` sin sesion y validar la redireccion a registro con retorno.
+- Crear cuenta nueva y confirmar la apertura de `/messages/new` con destinatario preseleccionado.
 - Enviar mensaje y validar que aparece en recibidos de `@ana`.
 
-## 3) Flujo invitacion por token
-- Crear mensaje nuevo y copiar `inviteUrl` devuelto por API.
-- Abrir `inviteUrl` sin sesion y verificar pantalla de invitacion.
-- Pulsar CTA principal y confirmar redireccion a registro/login con retorno.
-- Tras autenticacion, confirmar apertura de `messages/new` pre-rellenado al remitente.
+## 4) Flujo invitacion por token
+- Crear un mensaje nuevo y copiar `inviteUrl` devuelto por la API.
+- Abrir `inviteUrl` sin sesion y verificar la pantalla de invitacion.
+- Pulsar la accion principal y confirmar la redireccion al registro con retorno.
+- Tras autenticacion, confirmar la apertura de `messages/new` con remitente preseleccionado y `replyTo` activo.
 
-## 4) Auth y bandejas
+## 5) Auth y bandejas
 - Registrar usuario y validar cookie de sesion.
+- Confirmar que el campo `Telefono` aparece en registro y se acepta como opcional.
 - Iniciar sesion con usuario existente.
 - Consultar `/api/messages/inbox` y `/api/messages/sent` (200/401 segun sesion).
-- Verificar tabs de recibidos y enviados en `/messages/inbox`.
+- Verificar las tabs de recibidos y enviados en `/messages/inbox`.
+- Abrir recibidos y confirmar que los mensajes pasan a `READ`.
 
-## 5) Mensajes y plantillas
-- Buscar destinatario por nombre/email/@username.
-- Probar envio inmediato y envio programado.
+## 6) Mensajes y plantillas
+- Buscar destinatario por nombre, email o `@username`.
+- Probar envio inmediato.
+- Verificar que la programacion ya no aparece como opcion de envio.
 - Cargar plantillas de `/api/templates` y filtrar por categoria.
-- Probar respuesta directa desde boton "Responder" en recibidos.
+- Probar respuesta directa desde el boton `Responder` en recibidos.
 
-## 6) Contactos
+## 7) Contactos
 - Consultar `/api/contacts` autenticado.
-- Si el dispositivo lo permite, importar contactos y validar vinculacion a usuarios existentes.
+- Si el dispositivo lo permite, importar contactos y validar la vinculacion a usuarios existentes.
 
-## 7) Felicidad y ranking
+## 8) Felicidad y ranking
 - Consultar `/api/happiness/me` y validar `score`, `breakdown` y `progress`.
 - Consultar `/api/happiness/leaderboard?scope=global|country|city`.
-- Actualizar ubicacion con `PATCH /api/profile/location` y validar ranking local.
+- Actualizar ubicacion con `PATCH /api/profile/location` y validar el ranking local.
 
-## 8) Calidad tecnica
+## 9) Calidad tecnica
 - Ejecutar `npm run lint`.
 - Ejecutar `npm run build`.
 
-## 9) Operacion (modo sin cuentas externas)
+## 10) Operacion
 - Ejecutar `scripts/start-public-link.ps1` y validar `public-link.txt`.
-- Ejecutar `scripts/show-public-link.ps1` y validar URL activa.
-- Ejecutar `scripts/stop-public-link.ps1` y validar limpieza de estado.
-- (Opcional) instalar autostart con `scripts/install-autostart-public-link.ps1`.
+- Ejecutar `scripts/show-public-link.ps1` y validar la URL activa.
+- Ejecutar `scripts/stop-public-link.ps1` y validar la limpieza de estado.
+- Revisar `scripts/install-autostart-public-link.ps1` antes de usarlo, porque la ruta del proyecto esta hardcodeada para un path concreto de Windows.

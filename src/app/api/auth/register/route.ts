@@ -14,6 +14,16 @@ function normalizeOptionalText(value: string | undefined): string | null {
   return normalized;
 }
 
+function normalizeOptionalPhone(value: string | undefined): string | null {
+  const normalized = value?.trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const compact = normalized.replace(/[^\d+]/g, "");
+  return compact.length > 0 ? compact : null;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -47,6 +57,7 @@ export async function POST(request: Request) {
         username,
         name: parsed.data.name.trim(),
         passwordHash,
+        phone: normalizeOptionalPhone(parsed.data.phone ?? undefined),
         country: normalizeOptionalText(parsed.data.country),
         city: normalizeOptionalText(parsed.data.city),
       },
@@ -65,6 +76,7 @@ export async function POST(request: Request) {
         username: user.username,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         country: user.country,
         city: user.city,
       },

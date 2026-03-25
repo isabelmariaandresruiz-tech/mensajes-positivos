@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 type MessageCardProps = {
   direction: "sent" | "received";
@@ -20,6 +20,17 @@ export function MessageCard({
   replyHref,
 }: MessageCardProps) {
   const label = direction === "sent" ? "Para" : "De";
+  const normalizedStatus = status.toLowerCase();
+  const statusLabel =
+    normalizedStatus === "read"
+      ? "leido"
+      : normalizedStatus === "sent"
+        ? "enviado"
+        : normalizedStatus === "scheduled"
+          ? "programado"
+          : normalizedStatus === "canceled"
+            ? "cancelado"
+            : status;
 
   return (
     <article className="card message-card">
@@ -29,7 +40,7 @@ export function MessageCard({
       </strong>
       <p>{body}</p>
       <p className="message-meta">
-        Estado: {status}
+        Estado: {statusLabel}
         {sentAt ? ` • ${new Date(sentAt).toLocaleString("es-ES")}` : ""}
       </p>
       {replyHref ? (

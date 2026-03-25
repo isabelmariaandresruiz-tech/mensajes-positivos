@@ -45,7 +45,11 @@ function isStandaloneMode(): boolean {
   return iosStandalone || displayStandalone;
 }
 
-export function InstallAppButton() {
+type InstallAppButtonProps = {
+  compact?: boolean;
+};
+
+export function InstallAppButton({ compact = false }: InstallAppButtonProps) {
   const [platform] = useState<PlatformKind>(() =>
     typeof window === "undefined" ? "other" : detectPlatform(),
   );
@@ -66,7 +70,7 @@ export function InstallAppButton() {
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setIsReady(false);
-      setHelper("App instalada correctamente. Ya puedes abrirla desde la pantalla principal.");
+      setHelper("Instalada. Ya puedes abrirla desde la pantalla principal.");
       window.deferredPwaPrompt = undefined;
     };
 
@@ -88,7 +92,7 @@ export function InstallAppButton() {
 
   const handleInstall = async () => {
     if (isInstalled) {
-      setHelper("La app ya esta instalada en este dispositivo.");
+      setHelper("La app ya esta instalada en este telefono.");
       return;
     }
 
@@ -98,7 +102,7 @@ export function InstallAppButton() {
       setIsReady(false);
 
       if (choice.outcome === "accepted") {
-        setHelper("Instalacion iniciada. Abre la app desde tu pantalla principal.");
+        setHelper("Instalacion iniciada. Busca AnimoCerca en tu pantalla principal.");
         window.deferredPwaPrompt = undefined;
         return;
       }
@@ -107,8 +111,8 @@ export function InstallAppButton() {
       return;
     }
 
-    if (!window.isSecureContext) {
-      setHelper("Para instalar en movil necesitas abrir la app en HTTPS (por ejemplo con despliegue en Vercel).");
+    if (!window.isSecureContext && platform !== "ios") {
+      setHelper("Para instalarla en Android necesitas abrirla con HTTPS o en localhost.");
       return;
     }
 
@@ -118,18 +122,21 @@ export function InstallAppButton() {
     }
 
     if (platform === "android") {
-      setHelper("En Android: abre el menu del navegador y pulsa 'Instalar aplicacion' o 'Anadir a pantalla de inicio'.");
+      setHelper("En Android: abre el menu del navegador y pulsa 'Instalar aplicacion' o 'Anadir a pantalla principal'.");
       return;
     }
 
-    setHelper("Abre el menu del navegador y busca la opcion para instalar o anadir a pantalla de inicio.");
+    setHelper("Busca en el menu del navegador la opcion para instalar o anadir la app a la pantalla principal.");
   };
 
   const buttonLabel = isInstalled ? "App instalada" : isReady ? "Instalar app" : "Como instalar";
+  const buttonClass = compact
+    ? "button button-secondary button-small"
+    : "button button-secondary";
 
   return (
     <div>
-      <button className="button button-secondary" disabled={isInstalled} onClick={handleInstall} type="button">
+      <button className={buttonClass} disabled={isInstalled} onClick={handleInstall} type="button">
         {buttonLabel}
       </button>
       {helper ? <p className="install-helper">{helper}</p> : null}

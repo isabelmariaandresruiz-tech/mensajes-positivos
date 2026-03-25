@@ -1,6 +1,8 @@
-const CACHE_NAME = "animocerca-v3";
-const STATIC_CACHE_FILES = [
+const CACHE_NAME = "animocerca-pwa-v4";
+const SHELL_FILES = [
   "/offline",
+  "/login",
+  "/register",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -9,7 +11,7 @@ const STATIC_CACHE_FILES = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_CACHE_FILES)),
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES)),
   );
   self.skipWaiting();
 });
@@ -59,24 +61,29 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request).catch(() => caches.match("/offline")));
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match("/offline")),
+    );
     return;
   }
 
   if (isStaticAsset(requestUrl)) {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
+      caches.match(event.request).then((cached) => {
+        if (cached) {
+          return cached;
+        }
+
+        return fetch(event.request).then((response) => {
+          if (!response.ok) {
+            return response;
+          }
+
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           return response;
-        })
-        .catch(() => caches.match(event.request).then((cached) => cached ?? caches.match("/offline"))),
+        });
+      }),
     );
-    return;
   }
-
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request).then((cached) => cached ?? caches.match("/offline"))),
-  );
 });

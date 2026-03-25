@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { InstallAppButton } from "@/components/install-app-button";
 import { getServerSession } from "@/lib/auth/session";
-import { getInvitePreviewByToken } from "@/server/services/invites";
+import { prisma } from "@/lib/db/prisma";
 
 type InvitePageProps = {
   params: Promise<{ token: string }>;
@@ -15,10 +15,12 @@ function buildReplyHref(
   senderId: string,
   senderName: string,
   senderUsername: string | null,
+  messageId: string,
 ): string {
   const params = new URLSearchParams({
     recipientId: senderId,
     recipientName: senderName,
+    replyTo: messageId,
   });
 
   if (senderUsername) {
@@ -33,13 +35,47 @@ export default async function InvitePage({ params, searchParams }: InvitePagePro
   const resolvedSearchParams = await searchParams;
   const session = await getServerSession();
 
-  const preview = await getInvitePreviewByToken(token);
+  const invite = await prisma.inviteLink.findUnique({
+    where: { token },
+    include: {
+      message: {
+        select: {
+          id: true,
+          body: true,
+          createdAt: true,
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
-  if (!preview) {
+  if (!invite) {
     notFound();
   }
 
-  const replyHref = buildReplyHref(preview.senderId, preview.senderName, preview.senderUsername);
+  const preview = {
+    token: invite.token,
+    senderId: invite.message.sender.id,
+    senderName: invite.message.sender.name,
+    senderUsername: invite.message.sender.username,
+    messageExcerpt:
+      invite.message.body.length > 160 ? `${invite.message.body.slice(0, 157)}...` : invite.message.body,
+    isExpired: Boolean(invite.expiresAt && invite.expiresAt < new Date()),
+    messageId: invite.message.id,
+  };
+
+  const replyHref = buildReplyHref(
+    preview.senderId,
+    preview.senderName,
+    preview.senderUsername,
+    preview.messageId,
+  );
 
   if (resolvedSearchParams.open === "1") {
     if (preview.isExpired) {
@@ -64,9 +100,15 @@ export default async function InvitePage({ params, searchParams }: InvitePagePro
         <h1 className="page-title">{preview.senderName} te envio un mensaje positivo</h1>
         <p className="page-subtitle">&ldquo;{preview.messageExcerpt}&rdquo;</p>
 
-        <p className="message-meta">
-          Este enlace te permite instalar la app y responderle en un solo flujo.
-        </p>
+        <p className="message-meta">Este enlace te lleva directo al mensaje para responder desde el movil.</p>
+
+        <div className="mobile-install-card">
+          <p className="mobile-install-title">Responder como app</p>
+          <p className="install-helper">
+            Si lo prefieres, puedes instalar AnimoCerca antes de responder para abrirla desde la pantalla principal.
+          </p>
+          <InstallAppButton compact />
+        </div>
 
         {preview.isExpired ? (
           <p className="alert alert-error">Este enlace ha expirado. Pidele a la persona que te comparta uno nuevo.</p>
@@ -75,11 +117,9 @@ export default async function InvitePage({ params, searchParams }: InvitePagePro
         <div className="invite-actions">
           {!preview.isExpired ? (
             <Link className="button button-primary" href={`/i/${token}?open=1`}>
-              {session ? "Responder ahora" : "Instalar y responder"}
+              {session ? "Responder ahora" : "Crear cuenta y responder"}
             </Link>
           ) : null}
-
-          <InstallAppButton />
 
           {!session ? (
             <Link className="button button-secondary" href={`/register?returnTo=${encodeURIComponent(`/i/${token}?open=1`)}`}>

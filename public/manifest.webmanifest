@@ -1,9 +1,9 @@
 {
-  "id": "/dashboard?source=pwa",
+  "id": "/?source=pwa",
   "name": "AnimoCerca",
   "short_name": "AnimoCerca",
-  "description": "Mensajes positivos, felicitaciones y apoyo para tu gente.",
-  "start_url": "/dashboard?source=pwa",
+  "description": "Mensajes positivos para usar desde el telefono, con acceso rapido como app.",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "browser"],
@@ -35,7 +35,7 @@
       "name": "Nuevo mensaje",
       "short_name": "Nuevo",
       "url": "/messages/new",
-      "description": "Enviar un nuevo mensaje positivo"
+      "description": "Enviar un mensaje positivo"
     },
     {
       "name": "Recibidos",

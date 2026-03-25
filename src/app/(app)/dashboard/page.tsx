@@ -105,7 +105,7 @@ export default async function DashboardPage() {
   const [
     sentCount,
     inboxCount,
-    scheduledCount,
+    readCount,
     happiness,
     globalLeaderboard,
     countryLeaderboard,
@@ -113,7 +113,7 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     prisma.message.count({ where: { senderId: session.userId } }),
     prisma.message.count({ where: { recipientId: session.userId, status: { in: ["SENT", "READ"] } } }),
-    prisma.message.count({ where: { senderId: session.userId, status: "SCHEDULED" } }),
+    prisma.message.count({ where: { recipientId: session.userId, status: "READ" } }),
     computeHappinessForUser(session.userId),
     getHappinessLeaderboard({ limit: 8, scope: "global", userId: session.userId }),
     profile?.country
@@ -249,8 +249,8 @@ export default async function DashboardPage() {
           <p className="metric-value">{inboxCount}</p>
         </article>
         <article className="card metric-card">
-          <p className="metric-label">Programados</p>
-          <p className="metric-value">{scheduledCount}</p>
+          <p className="metric-label">Leidos</p>
+          <p className="metric-value">{readCount}</p>
         </article>
       </section>
 

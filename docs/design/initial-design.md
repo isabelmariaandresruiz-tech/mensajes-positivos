@@ -28,19 +28,20 @@ Construir una app de mensajes positivos con onboarding corto, estilo calido y fl
 - Estados vacios con accion sugerida.
 - Contraste AA y foco visible para accesibilidad.
 
-## Estado Actual (2026-03-10)
-Este documento mantiene el planteamiento inicial. El estado implementado ya incluye:
+## Estado Actual (2026-03-25)
+El planteamiento visual inicial sigue vigente, pero el producto ha evolucionado asi:
 - Landing publica por usuario para companeros: `/u/[username]`.
 - Flujo de invitacion por token con retorno a registro/login: `/i/[token]`.
-- Envio de mensajes "ahora" y envio programado.
+- Envio de mensajes solo inmediato. La programacion se retiro del flujo para no exponer una feature incompleta.
 - Bandejas separadas de enviados y recibidos.
-- Importacion de contactos (cuando el navegador/dispositivo lo permite).
-- Medidor de felicidad con ranking global/pais/ciudad.
-- Soporte PWA (manifest + service worker) y pagina offline.
-- Scripts de operacion para enlace publico temporal y autostart en Windows.
+- Importacion de contactos cuando el navegador/dispositivo lo permite.
+- Medidor de felicidad con ranking global, por pais y por ciudad.
+- Soporte PWA ligero activo para instalacion en telefono, con `manifest`, `service worker`, pagina offline e instrucciones de instalacion en UI.
+- Navegacion inferior y decisiones de layout claramente orientadas a telefono.
 
 ## Nota de Alcance
-- Este archivo es referencia de diseno base (fase inicial).
+- Este archivo conserva la referencia de diseno base.
 - El detalle tecnico actualizado vive en:
   - `docs/engineering/guia-tecnica-programadores.md`
+  - `docs/engineering/mapa-completo-repo.md`
   - `README.md`
